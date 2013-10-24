@@ -1,3 +1,29 @@
+var version = "v.1.038.01";
+var emphasize = true;
+
+var tooltips = new Array;
+var building_tooltips = new Array;
+
+var hold_item = new Array;
+var hold_is = new Array;
+var hold_cpi = new Array;
+var hold_be = new Array;
+var hold_tc = new Array;
+
+var gc_avail = "";
+var settings = new Array;
+var in_store = new Array(0, 0, 0, 0, 0, 0);
+var sell_out = 0;
+var upgrade_count = 33;
+var sts_type = new Array([" M", " B", " T", " Qa", " Qi", " Sx", " Sp", " Oc", " No", " Dc"], [" M", " G", " T", " P", " E", " Z", " Y", " Oc", " No", " Dc"]);
+var loops = 0;
+
+if (document.title.indexOf("Cookie Clicker") != -1 && $("#game").length != 0) {
+    Start_Cookie_Monster()
+} else {
+    alert("Cookie Monster " + version + "\n\nThese aren't the droids you're looking for.")
+}
+
 function Start_Cookie_Monster() {
     if ($("#cookie_monster_bar").length != 0) {
         alert("Cookie Monster " + version + "\n\nCookie Monster is already loaded, silly!");
@@ -514,8 +540,8 @@ function Set_Up_Tooltips() {
     }
 }
 
-function Update_Tooltips(e) {
-    if (e == "all" || e == "up") {
+function Update_Tooltips(which) {
+    if (which == "all" || which == "up") {
         in_store = new Array(0, 0, 0, 0, 0, 0);
         Game.UpgradesById.forEach(function (e, t) {
             for (var n = 0; n < upgrade_count; n++) {
@@ -526,9 +552,9 @@ function Update_Tooltips(e) {
             }
         })
     }
-    if (e == "all" || e == "ob") {
-        Game.ObjectsById.forEach(function (e, t) {
-            Manage_Building_Tooltip(e)
+    if (which == "all" || which == "ob") {
+        Game.ObjectsById.forEach(function (obj, idx) {
+            Manage_Building_Tooltip(obj)
         })
     }
 }
@@ -1046,43 +1072,54 @@ function Get_Frenzy_Mult() {
     return 1
 }
 
-function Manage_Building_Tooltip(e) {
-    var t = e.id;
+function Manage_Building_Tooltip(obj) {
+    var objid = obj.id;
     var n = new Array(CM_Lucky("reg", true), CM_Lucky("frenzy", true));
     var r = new Array("none", "none");
     var s = new Array("", "");
     var o = new Array(0, 0);
-    if (Game.cookies - e.price < n[0]) {
+    if (Game.cookies - obj.price < n[0]) {
         r[0] = "block";
-        o[0] = n[0] - (Game.cookies - e.price)
+        o[0] = n[0] - (Game.cookies - obj.price)
     }
-    if (Game.cookies - e.price < n[1]) {
+    if (Game.cookies - obj.price < n[1]) {
         r[1] = "block";
-        o[1] = n[1] - (Game.cookies - e.price)
+        o[1] = n[1] - (Game.cookies - obj.price)
     }
-    if (e.desc == building_tooltips[e.id]) {
-        e.desc += '<div id="cm_ob_div_' + t + '" style="position:relative; height:96px; background:#222222; border:1px solid #000000; margin:6px -6px -6px -6px; display:none;"></div>';
-        e.desc += '<div id="cm_ob_lucky_div_' + t + '" style="position:absolute; top:-25px; left:-12px; height:32px;">' + '<div id="cm_ob_lucky_div_warning" style="background:url(http://frozenelm.com/cookiemonster/images/warning.png); position:relative; float:left; height:32px; width:32px; display:none;"></div>' + '<div id="cm_ob_lucky_div_caution" style="background:url(http://frozenelm.com/cookiemonster/images/caution.png); position:relative; float:left; height:32px; width:32px; display:none;"></div>' + "</div>";
-        e.desc += '<div id="cm_ob_note_div_' + t + '" style="position:absolute; left:0px; margin-top:10px; color:white;">' + '<div id="cm_ob_note_div_warning" style="background:#222222; position:relative; display:none; margin-top:4px; padding:2px; border:1px solid #FF0000;"><b style="color:#FF0000;">Warning:</b> Purchase of this item will put you under the number of Cookies required for "Lucky!"</br><span id="cm_ob_warning_amount"></span>' + '<div id="cm_ob_lucky_div_warning" style="position:absolute; left:-10px; top:-10px; height:32px; width:32px;"><img src="http://frozenelm.com/cookiemonster/images/warning.png" height=16px width=16px></div></div>' + '<div id="cm_ob_note_div_caution" style="background:#222222; position:relative; display:none; margin-top:4px; padding:2px; border:1px solid #FFFF00;"><b style="color:#FFFF00;">Caution:</b> Purchase of this item will put you under the number of Cookies required for "Lucky!" (Frenzy)</br><span id="cm_ob_caution_amount"></span>' + '<div id="cm_ob_lucky_div_warning" style="position:absolute; left:-10px; top:-10px; height:32px; width:32px;"><img src="http://frozenelm.com/cookiemonster/images/caution.png" height=16px width=16px></div></div>' + "</div>";
+    if (obj.desc == building_tooltips[obj.id]) {
+        obj.desc += '<div id="cm_ob_div_' + objid + '" style="position:relative; height:126px; background:#222222; border:1px solid #000000; margin:6px -6px -6px -6px; display:none;"></div>';
+        obj.desc += '<div id="cm_ob_lucky_div_' + objid + '" style="position:absolute; top:-25px; left:-12px; height:32px;">' + '<div id="cm_ob_lucky_div_warning" style="background:url(http://frozenelm.com/cookiemonster/images/warning.png); position:relative; float:left; height:32px; width:32px; display:none;"></div>' + '<div id="cm_ob_lucky_div_caution" style="background:url(http://frozenelm.com/cookiemonster/images/caution.png); position:relative; float:left; height:32px; width:32px; display:none;"></div>' + "</div>";
+        obj.desc += '<div id="cm_ob_note_div_' + objid + '" style="position:absolute; left:0px; margin-top:10px; color:white;">' + '<div id="cm_ob_note_div_warning" style="background:#222222; position:relative; display:none; margin-top:4px; padding:2px; border:1px solid #FF0000;"><b style="color:#FF0000;">Warning:</b> Purchase of this item will put you under the number of Cookies required for "Lucky!"</br><span id="cm_ob_warning_amount"></span>' + '<div id="cm_ob_lucky_div_warning" style="position:absolute; left:-10px; top:-10px; height:32px; width:32px;"><img src="http://frozenelm.com/cookiemonster/images/warning.png" height=16px width=16px></div></div>' + '<div id="cm_ob_note_div_caution" style="background:#222222; position:relative; display:none; margin-top:4px; padding:2px; border:1px solid #FFFF00;"><b style="color:#FFFF00;">Caution:</b> Purchase of this item will put you under the number of Cookies required for "Lucky!" (Frenzy)</br><span id="cm_ob_caution_amount"></span>' + '<div id="cm_ob_lucky_div_warning" style="position:absolute; left:-10px; top:-10px; height:32px; width:32px;"><img src="http://frozenelm.com/cookiemonster/images/caution.png" height=16px width=16px></div></div>' + "</div>";
         Game.RebuildStore()
     }
-    var u = new Array("FFFF00", "FFFF00");
-    var a = new Array(hold_cpi[t], hold_tc[t]);
-    var f = new Array(Math.max.apply(Math, hold_cpi), Math.max.apply(Math, hold_tc));
-    var l = new Array(Math.min.apply(Math, hold_cpi), Math.min.apply(Math, hold_tc));
-    for (i = 0; i < u.length; i++) {
-        if (a[i] == l[i]) {
-            u[i] = "00FF00"
-        } else if (a[i] == f[i]) {
-            u[i] = "FF0000"
-        } else if (f[i] - a[i] < a[i] - l[i]) {
-            u[i] = "FF7F00"
+    
+    //Assign color coding to our numbers
+    var colors = new Array("FFFF00", "FFFF00");
+    var curvals = new Array(hold_cpi[objid], hold_be[objid], hold_tc[objid]);
+    var maxvals = new Array(Math.max.apply(Math, hold_cpi), Math.max.apply(Math, hold_be), Math.max.apply(Math, hold_tc));
+    var minvals = new Array(Math.min.apply(Math, hold_cpi), Math.min.apply(Math, hold_be), Math.min.apply(Math, hold_tc));
+    for (i = 0; i < colors.length; i++) {
+        if (curvals[i] == minvals[i]) {
+            colors[i] = "00FF00"
+        } else if (curvals[i] == maxvals[i]) {
+            colors[i] = "FF0000"
+        } else if (maxvals[i] - curvals[i] < curvals[i] - minvals[i]) {
+            colors[i] = "FF7F00"
         }
     }
-    if ($("#cm_ob_div_" + t).length == 1) {
-        $("#cm_ob_div_" + t).css("border", "1px solid #" + u[0]);
-        $("#cm_ob_div_" + t).css("display", "");
-        $("#cm_ob_div_" + t).html('<div style="position:absolute; top:4px; left:4px; color:#4bb8f0; font-weight:bold;">Bonus Income</div><div align=right style="position:absolute; top:18px; left:4px; color:white;">' + formatNum(hold_is[t]) + '</div><div style="position:absolute; top:34px; left:4px; color:#4bb8f0; font-weight:bold;">Base Cost Per Income</div><div align=right style="position:absolute; top:48px; left:4px; color:#' + u[0] + ';">' + formatNum(a[0]) + '</div><div style="position:absolute; top:64px; left:4px; color:#4bb8f0; font-weight:bold;">Time Left</div><div align=right style="position:absolute; top:78px; left:4px; color:#' + u[1] + ';">' + formatTime(a[1], "") + "</div>");
+    if ($("#cm_ob_div_" + objid).length == 1) {
+        $("#cm_ob_div_" + objid).css("border", "1px solid #" + colors[0]);
+        $("#cm_ob_div_" + objid).css("display", "");
+        $("#cm_ob_div_" + objid).html(
+                '<div style="position:absolute; top:4px; left:4px; color:#4bb8f0; font-weight:bold;">Bonus Income</div>' +
+                '<div align=right style="position:absolute; top:18px; left:4px; color:white;">' + formatNum(hold_is[objid]) + '</div>' +
+                '<div style="position:absolute; top:34px; left:4px; color:#4bb8f0; font-weight:bold;">Base Cost Per Income</div>' +
+                '<div align=right style="position:absolute; top:48px; left:4px; color:#' + colors[0] + ';">' + formatNum(curvals[0]) + '</div>' +
+                '<div style="position:absolute; top:64px; left:4px; color:#4bb8f0; font-weight:bold;">Break-even Time</div>' +
+                '<div align=right style="position:absolute; top:78px; left:4px; color:#' + colors[1] + ';">' + formatTime(curvals[1], '') + '</div>' +
+                '<div style="position:absolute; top:94px; left:4px; color:#4bb8f0; font-weight:bold;">Time Left</div>' +
+                '<div align=right style="position:absolute; top:108px; left:4px; color:#' + colors[2] + ';">' + formatTime(curvals[2], '') + '</div>'
+        );
         $("#cm_ob_warning_amount").text("Deficit: " + formatNum(o[0]));
         $("#cm_ob_caution_amount").text("Deficit: " + formatNum(o[1]));
         if (settings[10] == 1 || settings[10] == 2) {
@@ -1100,9 +1137,9 @@ function Manage_Building_Tooltip(e) {
         }
     }
     if (settings[6] == 1) {
-        $("#product" + t).find(".price").first().css("color", "#" + u[0])
+        $("#product" + objid).find(".price").first().css("color", "#" + colors[0])
     } else {
-        $("#product" + t).find(".price").first().css("color", "")
+        $("#product" + objid).find(".price").first().css("color", "")
     }
 }
 
@@ -1122,25 +1159,26 @@ function Make_Table() {
 }
 
 function Update_Table() {
-    Game.ObjectsById.forEach(function (e, t) {
-        var n = e.price;
-        var r = e.amount;
-        var i = e.storedTotalCps;
-        var s = e.storedCps * Game.globalCpsMult;
-        if (e.name == "Grandma") {
-            s = 0
+    Game.ObjectsById.forEach(function (obj, idx) {
+        var price = obj.price; //n
+        var amt = obj.amount; //r
+        var totcps = obj.storedTotalCps; //i - not used?
+        var cps = obj.storedCps * Game.globalCpsMult; //s
+        if (obj.name == "Grandma") {
+            cps = 0 //s
         }
-        var o = Math.round((s + Get_Upgrade_Bonuses(e.name, r, s)) * 100) / 100;
-        var u = Math.round(n / o * 100) / 100;
-        var a = e.name.replace(/([^\s]+)/, "");
-        hold_item[t] = e.name.replace(a, "") + ' (<span style="color:#4bb8f0;">' + formatNum(r) + "</span>)";
-        hold_is[t] = Math.round(o * 100) / 100;
-        hold_cpi[t] = Math.round(u * 100) / 100;
-        hold_tc[t] = Math.round(Seconds_Left(t, "ob"))
+        var is = Math.round((cps + Get_Upgrade_Bonuses(obj.name, amt, cps)) * 100) / 100;
+        var cpi = Math.round(price / is * 100) / 100;
+        var a = obj.name.replace(/([^\s]+)/, "");
+        hold_item[idx] = obj.name.replace(a, "") + ' (<span style="color:#4bb8f0;">' + formatNum(amt) + "</span>)";
+        hold_is[idx] = Math.round(is * 100) / 100;
+        hold_cpi[idx] = Math.round(cpi * 100) / 100;
+        hold_be[idx] = Math.round(price / is * 100) / 100;
+        hold_tc[idx] = Math.round(Seconds_Left(idx, "ob"))
     });
-    Game.ObjectsById.forEach(function (e, t) {
+    Game.ObjectsById.forEach(function (obj, idx) {
         var n = new Array("FFFF00", "FFFF00");
-        var r = new Array(hold_cpi[t], hold_tc[t]);
+        var r = new Array(hold_cpi[idx], hold_tc[idx]);
         var s = new Array(Math.max.apply(Math, hold_cpi), Math.max.apply(Math, hold_tc));
         var o = new Array(Math.min.apply(Math, hold_cpi), Math.min.apply(Math, hold_tc));
         for (i = 0; i < n.length; i++) {
@@ -1152,10 +1190,10 @@ function Update_Table() {
                 n[i] = "FF7F00"
             }
         }
-        $("#cookie_monster_item_" + t).html(hold_item[t]);
-        $("#cookie_monster_is_" + t).html(formatNum(hold_is[t]));
-        $("#cookie_monster_cpi_" + t).html('<span style="color:#' + n[0] + ';">' + formatNum(r[0]) + "</span>");
-        $("#cookie_monster_tc_" + t).html('<span style="color:#' + n[1] + ';">' + formatTime(r[1], "min") + "</span>")
+        $("#cookie_monster_item_" + idx).html(hold_item[idx]);
+        $("#cookie_monster_is_" + idx).html(formatNum(hold_is[idx]));
+        $("#cookie_monster_cpi_" + idx).html('<span style="color:#' + n[0] + ';">' + formatNum(r[0]) + "</span>");
+        $("#cookie_monster_tc_" + idx).html('<span style="color:#' + n[1] + ';">' + formatTime(r[1], "min") + "</span>")
     })
 }
 
@@ -1271,142 +1309,74 @@ function Manage_Buffs() {
     $("#versionNumber").css("bottom", $("#cookie_monster_timer_bars_div").css("height"))
 }
 
-function Get_Upgrade_Bonuses(e, t, n) {
+function Get_Upgrade_Bonuses(obj, num, basecps) {
     var r = 0;
     var i = 0;
-    switch (e) {
+    switch (obj) {
     case "Cursor":
-        if (t == 0) {
-            i += _cha("Click")
-        }
-        if (t == 1) {
-            i += _cha("Double-click")
-        }
-        if (t == 49) {
-            i += _cha("Mouse wheel")
-        }
-        if (t == 99) {
-            i += _cha("Of Mice and Men")
-        }
-        if (t == 199) {
-            i += _cha("The Digital")
-        }
+        if (num == 0) { i += _cha("Click") }
+        if (num == 1) { i += _cha("Double-click") }
+        if (num == 49) { i += _cha("Mouse wheel") }
+        if (num == 99) { i += _cha("Of Mice and Men") }
+        if (num == 199) { i += _cha("The Digital") }
         break;
     case "Grandma":
-        r += Get_Grandma_Mod_Total(t) * Game.globalCpsMult;
+        r += Get_Grandma_Mod_Total(num) * Game.globalCpsMult;
         r += Get_Cursor_Mod_Total() * Game.globalCpsMult;
-        if (t == 0) {
-            i += _cha("Grandma's Cookies")
-        }
-        if (t == 49) {
-            i += _cha("Sloppy kisses")
-        }
-        if (t == 99) {
-            i += _cha("Retirement home")
-        }
-        if (t == 149) {
-            i += _cha("Friend of the ancients")
-        }
-        if (t == 199) {
-            i += _cha("Ruler of the ancients")
-        }
+        if (num == 0) { i += _cha("Grandma's Cookies") }
+        if (num == 49) { i += _cha("Sloppy kisses") }
+        if (num == 99) { i += _cha("Retirement home") }
+        if (num == 149) { i += _cha("Friend of the ancients") }
+        if (num == 199) { i += _cha("Ruler of the ancients") }
         break;
     case "Farm":
         r += Get_Cursor_Mod_Total() * Game.globalCpsMult;
-        if (t == 0) {
-            i += _cha("My first farm")
-        }
-        if (t == 49) {
-            i += _cha("Reap what you sow")
-        }
-        if (t == 99) {
-            i += _cha("Farm ill")
-        }
+        if (num == 0) { i += _cha("My first farm") }
+        if (num == 49) { i += _cha("Reap what you sow") }
+        if (num == 99) { i += _cha("Farm ill") }
         break;
     case "Factory":
         r += Get_Cursor_Mod_Total() * Game.globalCpsMult;
-        if (t == 0) {
-            i += _cha("Production chain")
-        }
-        if (t == 49) {
-            i += _cha("Industrial revolution")
-        }
-        if (t == 99) {
-            i += _cha("Global warming")
-        }
+        if (num == 0) { i += _cha("Production chain") }
+        if (num == 49) { i += _cha("Industrial revolution") }
+        if (num == 99) { i += _cha("Global warming") }
         break;
     case "Mine":
         r += Get_Cursor_Mod_Total() * Game.globalCpsMult;
-        if (t == 0) {
-            i += _cha("You know the drill")
-        }
-        if (t == 49) {
-            i += _cha("Excavation site")
-        }
-        if (t == 99) {
-            i += _cha("Hollow the planet")
-        }
+        if (num == 0) { i += _cha("You know the drill") }
+        if (num == 49) { i += _cha("Excavation site") }
+        if (num == 99) { i += _cha("Hollow the planet") }
         break;
     case "Shipment":
         r += Get_Cursor_Mod_Total() * Game.globalCpsMult;
-        if (t == 0) {
-            i += _cha("Expedition")
-        }
-        if (t == 49) {
-            i += _cha("Galactic highway")
-        }
-        if (t == 99) {
-            i += _cha("Far far away")
-        }
+        if (num == 0) { i += _cha("Expedition") }
+        if (num == 49) { i += _cha("Galactic highway") }
+        if (num == 99) { i += _cha("Far far away") }
         break;
     case "Alchemy lab":
         r += Get_Cursor_Mod_Total() * Game.globalCpsMult;
-        if (t == 0) {
-            i += _cha("Transmutation")
-        }
-        if (t == 49) {
-            i += _cha("Transmogrification")
-        }
-        if (t == 99) {
-            i += _cha("Gold member")
-        }
+        if (num == 0) { i += _cha("Transmutation") }
+        if (num == 49) { i += _cha("Transmogrification") }
+        if (num == 99) { i += _cha("Gold member") }
         break;
     case "Portal":
         r += Get_Portal_Mod_Total() * Game.globalCpsMult;
         r += Get_Cursor_Mod_Total() * Game.globalCpsMult;
-        if (t == 0) {
-            i += _cha("A whole new world")
-        }
-        if (t == 49) {
-            i += _cha("Now you're thinking")
-        }
-        if (t == 99) {
-            i += _cha("Dimensional shift")
-        }
+        if (num == 0) { i += _cha("A whole new world") }
+        if (num == 49) { i += _cha("Now you're thinking") }
+        if (num == 99) { i += _cha("Dimensional shift") }
         break;
     case "Time machine":
         r += Get_Cursor_Mod_Total() * Game.globalCpsMult;
-        if (t == 0) {
-            i += _cha("Time warp")
-        }
-        if (t == 49) {
-            i += _cha("Alternate timeline")
-        }
-        if (t == 99) {
-            i += _cha("Rewriting history")
-        }
+        if (num == 0) { i += _cha("Time warp") }
+        if (num == 49) { i += _cha("Alternate timeline") }
+        if (num == 99) { i += _cha("Rewriting history") }
         break;
     case "Antimatter condenser":
         r += Get_Cursor_Mod_Total() * Game.globalCpsMult;
-        if (t == 0) {
-            i += _cha("Antibatter")
-        }
-        if (t == 49) {
-            i += _cha("Quirky quarks")
-        }
-        if (t == 99) {
-            i += _cha("It does matter!")
-        }
+        if (num == 0) { i += _cha("Antibatter") }
+        if (num == 49) { i += _cha("Quirky quarks") }
+        if (num == 99) { i += _cha("It does matter!") }
         break
     }
     if (Game.BuildingsOwned == 99) {
@@ -1418,19 +1388,19 @@ function Get_Upgrade_Bonuses(e, t, n) {
     if (Game.BuildingsOwned == 799) {
         i += _cha("Engineer")
     }
-    if (_owe(e)) {
+    if (_owe(obj)) {
         i++
     }
-    if (_mat(e)) {
+    if (_mat(obj)) {
         i++
     }
-    if (_bat(e)) {
+    if (_bat(obj)) {
         i++
     }
-    if (_cen(e)) {
+    if (_cen(obj)) {
         i++
     }
-    return r + Get_Achi_Worth(i, 0, r + n, 0)
+    return r + Get_Achi_Worth(i, 0, r + basecps, 0)
 }
 
 function _bat(e) {
@@ -1591,52 +1561,53 @@ function formatNumB(e) {
     return _sts(e, true).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
 }
 
-function formatTime(e, t) {
-    e = Math.round(e);
-    if (e == Infinity) {
+function formatTime(timeval, format, round) {
+    if(!round) { round = 0; }
+    timeval = Math.round(timeval * Math.pow(10,round)) / Math.pow(10, round);
+    if (timeval == Infinity) {
         return "Never"
     }
-    if (e == 0) {
+    if (timeval == 0) {
         return "Done!"
     }
-    if (e / 86400 > 1e3) {
+    if (timeval / 86400 > 1e3) {
         return "> 1,000 days"
     }
-    var n = parseInt(e / 86400) % 999;
-    var r = parseInt(e / 3600) % 24;
-    var i = parseInt(e / 60) % 60;
-    var s = e % 60;
-    var o = new Array(" days, ", " hours, ", " minutes, ", " seconds");
-    if (t != "min") {
-        if (n == 1) {
-            o[0] = " day, "
-        }
-        if (r == 1) {
-            o[1] = " hour, "
-        }
-        if (i == 1) {
-            o[2] = " minute, "
-        }
-        if (s == 1) {
-            o[3] = " second"
-        }
+    var days = parseInt(timeval / 86400) % 999; //n
+    var hours = parseInt(timeval / 3600) % 24; //r
+    var mins = parseInt(timeval / 60) % 60; //i
+    var secs = timeval % 60; //s
+    var units = new Array(" days, ", " hours, ", " minutes, ", " seconds");
+    if (format == "min") {
+        units = new Array("d, ", "h, ", "m, ", "s")
     } else {
-        o = new Array("d, ", "h, ", "m, ", "s")
+        if (days == 1) {
+            units[0] = " day, "
+        }
+        if (hours == 1) {
+            units[1] = " hour, "
+        }
+        if (mins == 1) {
+            units[2] = " minute, "
+        }
+        if (secs == 1) {
+            units[3] = " second"
+        }
     }
-    var u = "";
-    if (n > 0) {
-        u = u + n + o[0]
+    var timestr = "";
+    if (days > 0) {
+        timestr = timestr + days + units[0]
     }
-    if (n > 0 || r > 0) {
-        u = u + r + o[1]
+    if (days > 0 || hours > 0) {
+        timestr = timestr + hours + units[1]
     }
-    if (n > 0 || r > 0 || i > 0) {
-        u = u + i + o[2]
+    if (days > 0 || hours > 0 || mins > 0) {
+        timestr = timestr + mins + units[2]
     }
-    if (n > 0 || r > 0 || i > 0 || s > 0) {
-        u = u + s + o[3]
+    if (days > 0 || hours > 0 || mins > 0 || secs > 0) {
+        timestr = timestr + secs + units[3]
     }
-    return u
+    return timestr 
 }
 
 function Colorize(e, t, n) {
@@ -1980,24 +1951,4 @@ function Organize_Object_List() {
         }
     });
     return e
-}
-var version = "v.1.038.01";
-var emphasize = true;
-var tooltips = new Array;
-var building_tooltips = new Array;
-var hold_item = new Array;
-var hold_is = new Array;
-var hold_cpi = new Array;
-var hold_tc = new Array;
-var gc_avail = "";
-var settings = new Array;
-var in_store = new Array(0, 0, 0, 0, 0, 0);
-var sell_out = 0;
-var upgrade_count = 33;
-var sts_type = new Array([" M", " B", " T", " Qa", " Qi", " Sx", " Sp", " Oc", " No", " Dc"], [" M", " G", " T", " P", " E", " Z", " Y", " Oc", " No", " Dc"]);
-var loops = 0;
-if (document.title.indexOf("Cookie Clicker") != -1 && $("#game").length != 0) {
-    Start_Cookie_Monster()
-} else {
-    alert("Cookie Monster " + version + "\n\nThese aren't the droids you're looking for.")
 }
