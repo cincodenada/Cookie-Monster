@@ -12,3 +12,7 @@ in this repo, or you can simply follow the instructions on the wiki, but replace
 
 I'll gladly take pull requests here, and do my best to pull in changes from the pastebin as I notice them.  This repo
 will also include my own improvements, although I'll try to keep the original version in the `flyingkumquat` branch.
+
+I'm not sure what minifier was used on the original code, the closest result I've found was at [javascript-minifier.com](http://javascript-minifier.com),
+which helpfully has an API but unhelpfully doesn't mention any engine or code that I can find.  I've included Douglas Crockford's jsmin in the minifiers/
+directory as well, with a bash script to call it.  You'll have to compile it yourself if you want to use it, but it should be a pretty straightforward compile.
