@@ -1306,6 +1306,27 @@ function Manage_Buffs() {
             gc_avail = ""
         }
     }
+    $.each(Game.wrinklers, function(idx, wrinkler) {
+        if(wrinkler.close > 0) {
+            sucked_text = (wrinkler.close == 1) ? formatNum(wrinkler.sucked) : 'approaching';
+            bar_size = (wrinkler.close == 1) ? wrinkler.hp/3 * 100 : wrinkler.close * 100;
+            if ($("#cookie_monster_timer_wrinkler" + wrinkler.id).length != 1) {
+                $("#cookie_monster_timer_bars_div").append('<div id="cookie_monster_timer_wrinkler' + wrinkler.id + '" style="padding:4px 0px 5px 0px;"><table cellpadding=0 cellspacing=0 style="font-style:inherit; color:inherit;  width:100%;"><tr>' 
+                    + '<td style="width:130px; text-align:right;">Wrinkler<td>' 
+                    + '<td><div id="cmt_wrinkler' + wrinkler.id + '" style="position:relative; background:#661100; height:10px; width:' 
+                    + bar_size + '%; margin-left:4px; border:1px solid black;">' 
+                    + '<div id="cmt_time_wrinkler' + wrinkler.id + '" style="text-align:left; position:absolute; right:-100px; top:-5px; width:95px;">' 
+                    + sucked_text + "</div></div></td>" 
+                    + '<td style="width:105px;"></td>' + "</table></div>")
+            } else {
+                $("#cmt_wrinkler" + wrinkler.id).css("width", bar_size + "%");
+                $("#cmt_time_wrinkler" + wrinkler.id).text(sucked_text)
+            }
+            $("#cookie_monster_timer_wrinkler" + wrinkler.id).fadeIn(250)
+        } else if ($("#cookie_monster_timer_wrinkler" + wrinkler.id).length == 1 && $("#cookie_monster_timer_wrinkler" + wrinkler.id).css("opacity") == "1") {
+            $("#cookie_monster_timer_wrinkler" + wrinkler.id).fadeOut(250)
+        }
+    });
     $("#versionNumber").css("bottom", $("#cookie_monster_timer_bars_div").css("height"))
 }
 
